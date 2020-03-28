@@ -78,11 +78,11 @@ locate_gcc_for_board() {
   case $board in
     BOARD_ARCHIM2)
       locate_tools TOOLS_PATH arm-none-eabi
-      check_tools $TOOLS_PATH arm-none-eabi
+      check_tools "$TOOLS_PATH" arm-none-eabi
       ;;
     *)
       locate_tools TOOLS_PATH avr
-      check_tools $TOOLS_PATH avr
+      check_tools "$TOOLS_PATH" avr
       ;;
   esac
 }
@@ -115,7 +115,7 @@ get_config_info() {
 compile_firmware() {
   (cd Marlin; make clean; make \
     $MAKE_FLAGS \
-    AVR_TOOLS_PATH=$TOOLS_PATH/ \
+    AVR_TOOLS_PATH="$TOOLS_PATH"/ \
     ARDUINO_INSTALL_DIR=../ArduinoAddons/arduino-1.8.5 \
     ARDUINO_VERSION=10805 \
     HARDWARE_MOTHERBOARD=$motherboard_number \
@@ -221,22 +221,22 @@ check_tool() {
 #
 locate_tools() {
   DEST_VAR=$1
-  TOOL_BINARY=`which $2-objcopy`
+  TOOL_BINARY="`which $2-objcopy`"
   if [ $? -eq 0 ]; then
-    TOOLS_PATH=`dirname $TOOL_BINARY`
+    TOOLS_PATH=`dirname "$TOOL_BINARY"`
   fi
-  while [ ! -x $TOOLS_PATH/$2-objcopy ]
+  while [ ! -x "$TOOLS_PATH/$2-objcopy" ]
   do
     echo
     echo $2-objcopy not found!
     echo
     read -p "Type path to $2 tools: " TOOLS_PATH
-    if [ -z $TOOLS_PATH ]; then
+    if [ -z "$TOOLS_PATH" ]; then
       echo Aborting.
       exit
     fi
   done
-  eval "$DEST_VAR=$TOOLS_PATH"
+  eval "$DEST_VAR=\"$TOOLS_PATH\""
 }
 
 ####
@@ -250,12 +250,12 @@ check_tools() {
   echo Using $1 for $2 tools.
   echo
 
-  check_tool $1 $2-gcc
-  check_tool $1 $2-objcopy
-  check_tool $1 $2-g++
-  check_tool $1 $2-objdump
-  check_tool $1 $2-ar
-  check_tool $1 $2-size
+  check_tool "$1" $2-gcc
+  check_tool "$1" $2-objcopy
+  check_tool "$1" $2-g++
+  check_tool "$1" $2-objdump
+  check_tool "$1" $2-ar
+  check_tool "$1" $2-size
 }
 
 ####

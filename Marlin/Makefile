@@ -653,16 +653,17 @@ OPT = s
 DEFINES ?=
 
 # Program settings
-CC = $(AVR_TOOLS_PATH)$(TOOL_PREFIX)-gcc
-CXX = $(AVR_TOOLS_PATH)$(TOOL_PREFIX)-g++
-OBJCOPY = $(AVR_TOOLS_PATH)$(TOOL_PREFIX)-objcopy
-OBJDUMP = $(AVR_TOOLS_PATH)$(TOOL_PREFIX)-objdump
-AR  = $(AVR_TOOLS_PATH)$(TOOL_PREFIX)-ar
-SIZE = $(AVR_TOOLS_PATH)$(TOOL_PREFIX)-size
-NM = $(AVR_TOOLS_PATH)$(TOOL_PREFIX)-nm
+CC = "$(AVR_TOOLS_PATH)$(TOOL_PREFIX)-gcc"
+CXX = "$(AVR_TOOLS_PATH)$(TOOL_PREFIX)-g++"
+OBJCOPY = "$(AVR_TOOLS_PATH)$(TOOL_PREFIX)-objcopy"
+OBJDUMP = "$(AVR_TOOLS_PATH)$(TOOL_PREFIX)-objdump"
+AR  = "$(AVR_TOOLS_PATH)$(TOOL_PREFIX)-ar"
+SIZE = "$(AVR_TOOLS_PATH)$(TOOL_PREFIX)-size"
+NM = "$(AVR_TOOLS_PATH)$(TOOL_PREFIX)-nm"
 AVRDUDE = avrdude
 REMOVE = rm -f
 MV = mv -f
+FIND ?= find
 
 # Place -D or -U options here
 CDEFS    = -DF_CPU=$(F_CPU) ${addprefix -D , $(DEFINES)} -DARDUINO=$(ARDUINO_VERSION)
@@ -732,8 +733,8 @@ AVRDUDE_FLAGS = -D -C$(AVRDUDE_CONF) \
 # Since Marlin 2.0, the source files may be distributed into several
 # different directories, so it is necessary to find them recursively
 
-SRC    = $(shell find src -name '*.c'   -type f)
-CXXSRC = $(shell find src -name '*.cpp' -type f)
+SRC    = $(shell $(FIND) src -name '*.c'   -type f)
+CXXSRC = $(shell $(FIND) src -name '*.cpp' -type f)
 
 # Define all object files.
 OBJ  = ${patsubst %.c,   $(BUILD_DIR)/arduino/%.o, ${LIB_SRC}}
@@ -838,10 +839,13 @@ extcoff: $(TARGET).elf
 	$(NM) -n $< > $@
 
 # Link: create ELF output file from library.
-
+# $P $(CC) $(LD_PREFIX) $(ALL_CXXFLAGS) -o $@ -L. $(OBJ) $(LDFLAGS) $(LD_SUFFIX)
+	
 $(BUILD_DIR)/$(TARGET).elf: $(OBJ) Configuration.h
-	$(Pecho) "  CXX   $@"
-	$P $(CC) $(LD_PREFIX) $(ALL_CXXFLAGS) -o $@ -L. $(OBJ) $(LDFLAGS) $(LD_SUFFIX)
+	$(Pecho) "(1)  CXX   $@"
+	$(file >.linkargs,$(LD_PREFIX) $(ALL_CXXFLAGS) -o $@ -L. $(OBJ) $(LDFLAGS) $(LD_SUFFIX)) 
+	$P $(CC) @.linkargs
+	rm .linkargs
 
 # Object files that were found in "src" will be stored in $(BUILD_DIR)
 # in directories that mirror the structure of "src"

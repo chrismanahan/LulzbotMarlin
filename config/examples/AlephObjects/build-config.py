@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 # Written By Marcio Teixeira 2019 - Aleph Objects, Inc.
 #
@@ -2318,8 +2318,8 @@ def process_config(config, counts, in_filename, out_filename):
         # Handle special case of in-place substitutions
         os.rename(in_filename, in_filename + ".saved")
         in_filename = in_filename + ".saved"
-    outfile = open(out_filename, "w")
-    infile  = open(in_filename, "r")
+    outfile = open(out_filename, "w", encoding="utf-8")
+    infile  = open(in_filename, "r", encoding="utf-8")
     with infile as f:
         for line in f:
             line = do_substitions(config, counts, line)
